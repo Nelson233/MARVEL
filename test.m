@@ -1,21 +1,20 @@
 clc;clear;
-f = imread('D:\ÎÄ¼þ\Ñ§Ï°\mRNA\Ó¦ÓÃÐÂ¹Ú\Manuscript\Í¶¸å°æ\²»Í¬Åú´Î\µ÷Õûºó\7-1.jpg'); %¶ÁÈëÍ¼Æ¬£¨´Ë´¦'1.jpg'ÖÐ¼äÎªÍ¼ÏñÃû³Æ£©
-figure(1);imshow(f);hold on;            %ÏÔÊ¾Í¼Æ¬
-%¼ì²â²¢±ê³öÔ²Î»ÖÃ
-%²éÕÒÔ²ÐÎ£¨·½À¨ºÅ[90 100]ÄÚÎªÔ²µÄ°ë¾¶£¬'Sensitivity',0.98 , ÎªÁéÃô¶ÈãÐÖµ£©
+f = imread('D:\Document\variant-beta.jpg'); %In put your imageï¼ˆ'1.jpg' is the name of your imageï¼‰
+figure(1);imshow(f);hold on;            %Present the image
+%Circle localization and segmentationï¼ˆ[90 100]is the radius of circle ï¼Œ'Sensitivity',0.98 , is the sensitivityï¼‰
 [centers,radii] = imfindcircles(f,[60 70], 'Sensitivity',0.96,'Method','twostage');
 h = viscircles(centers,radii);
-circleParaXYR = [centers,radii];        %½«¼ì²â³öµÄÔ²Ô²ÐÄÎ»ÖÃ¡¢°ë¾¶´æ´¢½øcircleParaXYR¾ØÕó
-r=size(circleParaXYR,1);                %¼ì²â³öµÄÔ²Ò»¹²ÓÐr¸ö
- %È¥³ý¶àÓàµÄÔ²  
- if(r > 6)                               %Èç¹û¼ì²â³öµÄÔ²´óÓÚ6¸ö£¬¾ÍÐèÒªÈ¥³ýÔ²
+circleParaXYR = [centers,radii];      
+r=size(circleParaXYR,1);             
+ 
+ if(r > 6)    % It is up to the circles you desined in the origami papers
   for n =r:-1:1
-         if(circleParaXYR(n,1)<100||circleParaXYR(n,1)>700)  %È¥³ýÔ²ÐÄ×Ý×ø±êÔÚ0~400ÒÔÍâµÄ²¿·Ö
+         if(circleParaXYR(n,1)<100||circleParaXYR(n,1)>700) 
              circleParaXYR(n,1)=[100 700];
          end
      end
 end
- r=size(circleParaXYR,1);                 %ÖØÐÂ¼ÆËã¼ì²â³öµÄÔ²Ò»¹²ÓÐr¸ö
+ r=size(circleParaXYR,1);               
  plot(circleParaXYR(:,1), circleParaXYR(:,2), 'r+');  
 for k = 1:r %size(circleParaXYR, 1)  
      t=0:0.01*pi:2*pi;  
@@ -23,31 +22,29 @@ for k = 1:r %size(circleParaXYR, 1)
      y=sin(t).*circleParaXYR(k,3)+circleParaXYR(k,2);  
     plot(x,y,'r');   end  
 
-%¼ì²éÃ¿¸öÔ²ºìÉ«ºÍÂÌÉ«·ÖÁ¿Õ¼±È
-r=size(circleParaXYR,1);                 %ÖØÐÂ¼ÆËã¼ì²â³öµÄÔ²Ò»¹²ÓÐr¸ö
+r=size(circleParaXYR,1);              
 imageSize = size(f);
-croppedImage = uint8(zeros(imageSize));  %Ô¤ÖÃ¿ÕÍ¼Ïñ
+croppedImage = uint8(zeros(imageSize)); 
 ImageTotal=uint8(zeros(imageSize));
 Image_RTotal=uint8(zeros(imageSize));
 Image_YTotal=uint8(zeros(imageSize));
 for n=1:r
-    c= [floor(circleParaXYR(n,2)),floor(circleParaXYR(n,1)),floor(circleParaXYR(n,3))];     % ²Ã¼ôÔ²µÄÔ²ÐÄÎ»ÖÃ¡¢°ë¾¶
+    c= [floor(circleParaXYR(n,2)),floor(circleParaXYR(n,1)),floor(circleParaXYR(n,3))];    
     [xx,yy,zz] = ndgrid((1:imageSize(1))-c(1),(1:imageSize(2))-c(2),(1:imageSize(3))-c(3));
-    mask = uint8((xx.^2 + yy.^2)<c(3)^2);                 %Ô²ÐÎÑÚÂë£¬°ÑÔ²ÒÔÍâµÄ²¿·ÖµÄ²¿·Ö¸Ç×¡
+    mask = uint8((xx.^2 + yy.^2)<c(3)^2);                
     croppedImage = f.*mask;
     Image=croppedImage;
     Z = uint8(zeros(imageSize));
-    R=Image(:,:,1); G=Image(:,:,2); B=Image(:,:,3);       %È¡Í¼ÏñµÄRGBÈý¸ö·ÖÁ¿
-    diff_R=0; diff_G=0; diff_B=0;  % ÉèÖÃºì¡¢ÂÌ¡¢À¶ÈýÖÖÑÕÉ«ÌáÈ¡ãÐÖµ£¨Ô½´óÔ½ÑÏ¸ñ£©
+    R=Image(:,:,1); G=Image(:,:,2); B=Image(:,:,3);      
+    diff_R=0; diff_G=0; diff_B=0;  
 
-    %ºìÉ«ÌáÈ¡
+    %Extract R components
     Image_R=Image;
     RP_R=Image(:,:,1); RP_G=Image(:,:,2); RP_B=Image(:,:,3);
-    XYR=~((R-G)>diff_R &(R-B)>diff_R);  % ÌáÈ¡ºìÉ«Ìõ¼þÊÇR·ÖÁ¿ÓëG¡¢B·ÖÁ¿²îÖµ´óÓÚÉè¶¨
-    Mask=Z(XYR);  % ºÚÉ«±³¾°ÑÚÄ¤
-    RP_R(XYR)=Mask; RP_G(XYR)=Mask; RP_B(XYR)=Mask;  % Ê¹µÃ·ÇºìÉ«ÇøÓò±äÎª»ÒÉ«
+    XYR=~((R-G)>diff_R &(R-B)>diff_R);  
+    Mask=Z(XYR); 
+    RP_R(XYR)=Mask; RP_G(XYR)=Mask; RP_B(XYR)=Mask; 
     Image_R(:,:,1)=RP_R; Image_R(:,:,2)=RP_G; Image_R(:,:,3)=RP_B; 
-    %Í³¼ÆºìÉ«ÏñËØµã¸öÊý
     s=0;
     for x=1:imageSize(1)
         for y=1:imageSize(2)
@@ -56,16 +53,15 @@ for n=1:r
             end
         end
     end
-    staining(n,1)=s/(3.14*circleParaXYR(n,3)^2)*100;%½«ºìÉ«·ÖÁ¿Õ¼±È´æ´¢Èë¾ØÕó£¬·½±ãºóÐø¶ÁÈ¡ÏÔÊ¾
+    staining(n,1)=s/(3.14*circleParaXYR(n,3)^2)*100;
     
-    % ÂÌÉ«ÌáÈ¡
+    % Extract G components
     Image_Y=Image;
     RP_R=Image(:,:,1); RP_G=Image(:,:,2); RP_B=Image(:,:,3);
-    XYR=~((G-R)>diff_G&(G-B)>diff_G);  % ÌáÈ¡ÂÌÉ«Ìõ¼þÊÇG·ÖÁ¿ÓëR¡¢B·ÖÁ¿²îÖµ´óÓÚÉè¶¨
-    Mask=Z(XYR);  % ºÚÉ«±³¾°ÑÚÄ¤
-    RP_R(XYR)=Mask; RP_G(XYR)=Mask; RP_B(XYR)=Mask;  % Ê¹µÃ·ÇÂÌÉ«ÇøÓò±äÎª»ÒÉ«
+    XYR=~((G-R)>diff_G&(G-B)>diff_G); 
+    Mask=Z(XYR);
+    RP_R(XYR)=Mask; RP_G(XYR)=Mask; RP_B(XYR)=Mask; 
     Image_Y(:,:,1)=RP_R; Image_Y(:,:,2)=RP_G; Image_Y(:,:,3)=RP_B; 
-     %Í³¼ÆÂÌÉ«ÏñËØµã¸öÊý
     s=0;
     for x=1:imageSize(1)
         for y=1:imageSize(2)
@@ -74,17 +70,17 @@ for n=1:r
             end
         end
     end
-    staining(n,2)=s/(3.14*circleParaXYR(n,3)^2)*100;%½«ÂÌÉ«·ÖÁ¿Õ¼±È´æ´¢Èë¾ØÕó£¬·½±ãºóÐø¶ÁÈ¡ÏÔÊ¾
+    staining(n,2)=s/(3.14*circleParaXYR(n,3)^2)*100;
     ImageTotal=Image+ImageTotal;
     Image_RTotal=Image_R+Image_RTotal;
     Image_YTotal=Image_Y+Image_YTotal;
 end
 
-%% ÏÔÊ¾½á¹û
+%% Output the proportion the  G components
 figure(2),imshow(f); title('12');hold on;
 for n = 1 : r
-    percentR = ['PR £º',num2str(staining(n,1)),'%'];
-    percentY = ['PG £º',num2str(staining(n,2)),'%'];
+    percentR = ['PR ï¼š',num2str(staining(n,1)),'%'];
+    percentY = ['PG ï¼š',num2str(staining(n,2)),'%'];
     text(circleParaXYR(n,1),circleParaXYR(n,2)+circleParaXYR(n,3)+10,percentR,'horiz','center','color','w');
     text(circleParaXYR(n,1),circleParaXYR(n,2)+circleParaXYR(n,3)+25,percentY,'horiz','center','color','w');
 end
